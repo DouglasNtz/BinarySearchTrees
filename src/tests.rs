@@ -1,7 +1,7 @@
 use super::BinarySearchTree;
 
 #[test]
-fn corret_insertion_test() {
+fn get_sucessor_predecessor_test() {
 
     let mut b = BinarySearchTree::new();
 
@@ -46,5 +46,39 @@ fn corret_insertion_test() {
     assert_eq!(b.get_predecessor(&17), Some((&15, &"A")));
     assert_eq!(b.get_predecessor(&18), Some((&17, &"J")));
     assert_eq!(b.get_predecessor(&20), Some((&18, &"M")));
+
+}
+
+#[test]
+fn deletion_test() {
+
+    let list = [(&15,8), (&6,4), (&3,2), (&2,0), (&4,3), (&7,5), (&13,7), (&9,6), (&18,10), (&17,9), (&20,12)];
+
+    for element in list {
+        let mut b = BinarySearchTree::new();
+
+        b.insert(15, "A");
+        b.insert(6, "B");
+        b.insert(3, "C");
+        b.insert(2, "D");
+        b.insert(4, "E");
+        b.insert(7, "F");
+        b.insert(13, "G");
+        b.insert(9, "H");
+        b.insert(18, "I");
+        b.insert(17, "J");
+        b.insert(20, "K");
+        b.insert(2, "L");
+        b.insert(18, "M");
+
+        let mut v = vec![(&2, &"D"), (&2, &"L"), (&3, &"C"), (&4, &"E"), (&6, &"B"), (&7, &"F"), (&9, &"H"),
+                         (&13, &"G"), (&15, &"A"), (&17, &"J"), (&18, &"I"), (&18, &"M"), (&20, &"K")];
+
+        v.remove(element.1);
+
+        b.deletion(element.0);
+        println!("{}", element.0);
+        assert_eq!(b.inorder(), v);
+    }
 
 }

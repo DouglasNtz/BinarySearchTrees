@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 #[derive(Debug)]
-struct Element<T: PartialOrd + Debug, E: Debug> {
+struct Element<T: PartialOrd, E> {
     value: T,
     parent: Option<usize>,
     left: Option<usize>,
@@ -10,12 +10,12 @@ struct Element<T: PartialOrd + Debug, E: Debug> {
 }
 
 #[derive(Debug)]
-pub struct BinarySearchTree<T: PartialOrd + Debug, E: Debug> {
+pub struct BinarySearchTree<T: PartialOrd, E> {
     root: Option<usize>,
     array: Vec<Element<T,E>>
 }
 
-impl<T: PartialOrd + Debug, E: Debug> BinarySearchTree<T,E> {
+impl<T: PartialOrd, E> BinarySearchTree<T,E> {
     pub fn new() -> Self {
 
         Self { root: None, array: Vec::new() }
@@ -267,77 +267,20 @@ impl<T: PartialOrd + Debug, E: Debug> BinarySearchTree<T,E> {
 
         self.array.len()
     }
-    pub fn deletion(self: &mut Self, value: &T) -> Option<E> {  // deleta o primeiro encontrado com chave value encontrada
+    pub fn deletion(self: &mut Self, value: &T) {  // deleta o primeiro encontrado com chave value encontrada
 
         let opt_index = self.get_index(value);
 
         let index = match opt_index {
             Some(i) => i,
-            None => return None
+            None => return
         };
 
-
-        let last = self.array.len() - 1;
-
-        if index != last {
-
-            self.array.swap(index, last);  // troca de posição com o último no array
-
-            match self.array[index].left {
-                Some(i) => {
-                    self.array[i].parent = Some(index)
-                },
-                None => {}
-            }
-            match self.array[index].right {
-                Some(i) => {
-                    self.array[i].parent = Some(index)
-                },
-                None => {}
-            }
-            match self.array[index].parent {
-                Some(i) => {
-                    if self.array[index].value < self.array[i].value {
-                        self.array[i].left = Some(index);
-                    } else {
-                        self.array[i].right = Some(index);
-                    }
-                },
-                None => self.root = Some(index)
-            }
-
-            match self.array[last].left {
-                Some(i) => {
-                    self.array[i].parent = Some(last)
-                },
-                None => {}
-            }
-            match self.array[last].right {
-                Some(i) => {
-                    self.array[i].parent = Some(last)
-                },
-                None => {}
-            }
-            match self.array[last].parent {
-                Some(i) => {
-                    if self.array[last].value < self.array[i].value {
-                        self.array[i].left = Some(last);
-                    } else {
-                        self.array[i].right = Some(last);
-                    }
-                },
-                None => self.root = Some(last)
-            }
-        }
-
-        // corrigimos os pais e filhos. Agora quando for fazer pop(), não estraga os índices do array
-        // Basta reconfigurar quem é pai e filho de quem.
-
-        match (self.array[last].left, self.array[last].right) {
+        match (self.array[index].left, self.array[index].right) {
             (None, None) => {
-                match self.array[last].parent {
+                match self.array[index].parent {
                     Some(i) => {
-                        if self.array[last].value < self.array[i].value {
+                        if self.array[index].value < self.array[i].value {
                             self.array[i].left = None;
                         } else {
                             self.array[i].right = None;
@@ -347,9 +290,9 @@ impl<T: PartialOrd + Debug, E: Debug> BinarySearchTree<T,E> {
                 }
             },
             (None, Some(j)) => {
-                match self.array[last].parent {
+                match self.array[index].parent {
                     Some(i) => {
-                        if self.array[last].value < self.array[i].value {
+                        if self.array[index].value < self.array[i].value {
                             self.array[i].left = Some(j);
                         } else {
                             self.array[i].right = Some(j);
@@ -363,9 +306,9 @@ impl<T: PartialOrd + Debug, E: Debug> BinarySearchTree<T,E> {
                 }
             },
             (Some(j), None) => {
-                match self.array[last].parent {
+                match self.array[index].parent {
                     Some(i) => {
-                        if self.array[last].value < self.array[i].value {
+                        if self.array[index].value < self.array[i].value {
                             self.array[i].left = Some(j);
                         } else {
                             self.array[i].right = Some(j);
@@ -380,35 +323,34 @@ impl<T: PartialOrd + Debug, E: Debug> BinarySearchTree<T,E> {
             },
             (Some(j1), Some(j2)) => {
 
-                let sucessor = self.sucessor(last).unwrap();
+                let sucessor = self.sucessor(index).unwrap();
 
                 self.array[j1].parent = Some(sucessor);
                 self.array[sucessor].left = Some(j1);
 
-                if sucessor == j2 {
+                let pai_sucessor = self.array[sucessor].parent.unwrap();
 
-                    match self.array[last].parent {
-                        Some(i) => {
-                            if self.array[last].value < self.array[i].value {
-                                self.array[i].left = Some(sucessor);
-                            } else {
-                                self.array[i].right = Some(sucessor);
-                            }
-                            self.array[sucessor].parent = Some(i);
-                        },
-                        None => {
-                            self.root = Some(sucessor);
-                            self.array[sucessor].parent = None;
+                match self.array[index].parent {
+                    Some(i) => {
+                        if self.array[index].value < self.array[i].value {
+                            self.array[i].left = Some(sucessor);
+                        } else {
+                            self.array[i].right = Some(sucessor);
                         }
+                        self.array[sucessor].parent = Some(i);
+                    },
+                    None => {
+                        self.root = Some(sucessor);
+                        self.array[sucessor].parent = None;
                     }
-                } else {
+                }
+
+                if sucessor != j2 {
 
                     self.array[j2].parent = Some(sucessor);
 
                     let filho_sucessor = self.array[sucessor].right;
                     self.array[sucessor].right = Some(j2);
-
-                    let pai_sucessor = self.array[sucessor].parent.unwrap();
 
                     match filho_sucessor {
                         Some(k) => {
@@ -422,7 +364,6 @@ impl<T: PartialOrd + Debug, E: Debug> BinarySearchTree<T,E> {
                 }
             }
         }
-        Some(self.array.pop().unwrap().satelite)
     }
 
     fn minimum_aux(self: &Self, mut index: usize) -> usize {

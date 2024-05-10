@@ -33,16 +33,16 @@ fn main() {
     b.insert(13, "G");
     b.insert(9, "H");
     b.insert(18, "I");
-    //b.insert(17, "J");
+    b.insert(17, "J");
     b.insert(20, "K");
     b.insert(2, "L");
     b.insert(18, "M");
 
-
+    println!("{:?}", b.inorder());
     println!("Deletion");
 
     b.deletion(&15);
-    //println!("{:?}", b.inorder());
+    println!("{:?}", b.inorder());
 
 
 }
