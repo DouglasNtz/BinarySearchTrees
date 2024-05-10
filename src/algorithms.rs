@@ -267,6 +267,7 @@ impl<T: PartialOrd, E> BinarySearchTree<T,E> {
 
         self.array.len()
     }
+
     pub fn deletion(self: &mut Self, value: &T) -> Option<E> {  // deleta o primeiro encontrado com chave value encontrada
 
         let opt_index = self.get_index(value);
