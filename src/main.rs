@@ -44,5 +44,6 @@ fn main() {
     b.deletion(&15);
     println!("{:?}", b.inorder());
 
-
+    b.insert(5, "N");
+    println!("{:?}", b.inorder());
 }

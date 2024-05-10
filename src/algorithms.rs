@@ -267,13 +267,13 @@ impl<T: PartialOrd, E> BinarySearchTree<T,E> {
 
         self.array.len()
     }
-    pub fn deletion(self: &mut Self, value: &T) {  // deleta o primeiro encontrado com chave value encontrada
+    pub fn deletion(self: &mut Self, value: &T) -> Option<E> {  // deleta o primeiro encontrado com chave value encontrada
 
         let opt_index = self.get_index(value);
 
         let index = match opt_index {
             Some(i) => i,
-            None => return
+            None => return None
         };
 
         match (self.array[index].left, self.array[index].right) {
@@ -364,6 +364,36 @@ impl<T: PartialOrd, E> BinarySearchTree<T,E> {
                 }
             }
         }
+
+        let last = self.len() - 1;
+        if index != last {
+            match self.array[last].parent {
+                Some(i) => {
+                    if self.array[last].value < self.array[i].value {
+                        self.array[i].left = Some(index);
+                    } else {
+                        self.array[i].right = Some(index);
+                    }
+                },
+                None => {
+                    self.root = Some(index);
+                }
+            }
+            match self.array[last].left {
+                Some(i) => {
+                    self.array[i].parent = Some(index)
+                },
+                None => {}
+            }
+            match self.array[last].right {
+                Some(i) => {
+                    self.array[i].parent = Some(index)
+                },
+                None => {}
+            }
+            self.array.swap(index, last);
+        }
+        return Some(self.array.pop().unwrap().satelite)
     }
 
     fn minimum_aux(self: &Self, mut index: usize) -> usize {
